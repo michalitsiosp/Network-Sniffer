@@ -4,7 +4,13 @@ from scapy.all import srp, Ether, ARP, conf, IP, sr, ICMP , get_if_addr
 import logging
 logging.getLogger("scapy").setLevel(logging.CRITICAL)
 conf.verb = 0
-
+print(r"  _   _      _                      _       _____       _  __  __          ")
+print(r" | \ | |    | |                    | |     / ____|     (_)/ _|/ _|         ")
+print(r" |  \| | ___| |___      _____  _ __| | __ | (___  _ __  _| |_| |_ ___ _ __ ")
+print(r" | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ /  \___ \| '_ \| |  _|  _/ _ \ '__|")
+print(r" | |\  |  __/ |_ \ V  V / (_) | |  |   <   ____) | | | | | | | ||  __/ |   ")
+print(r" |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |_____/|_| |_|_|_| |_| \___|_|   ")
+print(r"                                                                           ")
 #traceroute.py
 if len(sys.argv) != 2:
 	print("Usage: python script.py <target>\n eg: python script.py google.com")
