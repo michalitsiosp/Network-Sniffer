@@ -1,3 +1,5 @@
+import json
+import urllib.request
 import sys
 import time
 from scapy.all import srp, Ether, ARP, conf, IP, sr, ICMP , get_if_addr
@@ -39,6 +41,17 @@ while ping == False and ttl != 30:
 if not ping:
     print("\n[-] Target was not reached within the TTL limit.")
 
+#find device
+def get_vendor(mac_address):
+    try:
+        url = f"https://api.macvendors.com/{mac_address}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=2) as response:
+            return response.read().decode('utf-8')
+    except:
+        return "Unknown Vendor"
+
+
 #netdiscover.py
 my_ip = get_if_addr(conf.iface)  # returns eg "192.168.55.12"
 target1 = ".".join(my_ip.split(".")[:-1]) + ".0/24"  
@@ -50,8 +63,10 @@ try:
 except Exception as e:
     print(f"[-] Error: {e} ")
     sys.exit(1)
-print("IP Address\t\tMAC Address")
-print("-" * 40)
+print("IP Address\t\tMAC Address\t\tDevice")
+print("-" * 65)
 
 for sent, received in answered:
-    print(f"{received.psrc}\t\t{received.hwsrc}")
+    vendor = get_vendor(received.hwsrc)
+    print(f"{received.psrc:<16}\t{received.hwsrc}\t{vendor}")
+    time.sleep(1)
