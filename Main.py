@@ -14,32 +14,32 @@ print(r" | |\  |  __/ |_ \ V  V / (_) | |  |   <   ____) | | | | | | | ||  __/ |
 print(r" |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |_____/|_| |_|_|_| |_| \___|_|   ")
 print(r"                                                                           ")
 #traceroute.py
-if len(sys.argv) != 2:
-	print("Usage: python script.py <target>\n eg: python script.py google.com")
-	sys.exit(1)
+
+def traceroute():
 
 
 
 
-target = sys.argv[1]
 
-print(f"[*] Tracing route to {target}\n")
-print("TTL\tRouter/IP\t\tResponse")
-print("-" * 55)
+	target = input("write target ip: ")
 
-ping = False
-ttl = 1
-while ping == False and ttl != 30:
-        ans,unans=sr(IP(dst=sys.argv[1], ttl=ttl)/ICMP(),timeout = 1)
-        for sent, received in ans:
-                print(f"{sent.ttl}\t{received.src}\t\t{received.summary()}")
-                if received.type == 0:
-                        ping = True
-                        break
-        ttl=ttl+1
-        time.sleep(0.2)
-if not ping:
-    print("\n[-] Target was not reached within the TTL limit.")
+	print(f"[*] Tracing route to {target}\n")
+	print("TTL\tRouter/IP\t\tResponse")
+	print("-" * 55)
+
+	ping = False
+	ttl = 1
+	while ping == False and ttl != 30:
+        	ans,unans=sr(IP(dst=target, ttl=ttl)/ICMP(),timeout = 1)
+        	for sent, received in ans:
+                	print(f"{sent.ttl}\t{received.src}\t\t{received.summary()}")
+                	if received.type == 0:
+                        	ping = True
+                        	break
+        	ttl=ttl+1
+       		time.sleep(0.2)
+	if not ping:
+    		print("\n[-] Target was not reached within the TTL limit.")
 
 #find device
 def get_vendor(mac_address):
@@ -53,20 +53,51 @@ def get_vendor(mac_address):
 
 
 #netdiscover.py
-my_ip = get_if_addr(conf.iface)  # returns eg "192.168.55.12"
-target1 = ".".join(my_ip.split(".")[:-1]) + ".0/24"  
-try:
-    broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
-    arp_request = ARP(pdst=target1)
-    packet = broadcast / arp_request
-    answered, unanswered = srp(packet, timeout=3, verbose=0)
-except Exception as e:
-    print(f"[-] Error: {e} ")
-    sys.exit(1)
-print("IP Address\t\tMAC Address\t\tDevice")
-print("-" * 65)
+def netdiscover():
+	my_ip = get_if_addr(conf.iface)  # returns eg "192.168.55.12"
+	target1 = ".".join(my_ip.split(".")[:-1]) + ".0/24"  
+	try:
+    		broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
+    		arp_request = ARP(pdst=target1)
+    		packet = broadcast / arp_request
+    		answered, unanswered = srp(packet, timeout=3, verbose=0)
+	except Exception as e:
+    		print(f"[-] Error: {e} ")
+    		sys.exit(1)
+	print("IP Address\t\tMAC Address\t\tDevice")
+	print("-" * 65)
 
-for sent, received in answered:
-    vendor = get_vendor(received.hwsrc)
-    print(f"{received.psrc:<16}\t{received.hwsrc}\t{vendor}")
-    time.sleep(1)
+	for sent, received in answered:
+    		vendor = get_vendor(received.hwsrc)
+    		print(f"{received.psrc:<16}\t{received.hwsrc}\t{vendor}")
+    		time.sleep(1)
+#selection menu 
+
+def main():
+	while True:
+		print("**MENU**")
+		print("1. Netdiscover")
+		print("2. Traceroute")
+		print("3. Nmap Scan")
+		print("4. Exit")
+		apanthsh = int(input("Select from (1-4): "))
+		if apanthsh == 1:
+			netdiscover()
+			for i in range(1,4):
+                                print("-" * 65)
+                                print("-" * 65)
+
+		elif apanthsh == 2:
+			traceroute()
+			for i in range(1,4):
+				print("-" * 65)
+				print("-" * 65)
+		elif apanthsh == 3:
+			print("Nmap????")
+		else:
+			print("--Exit--")
+			break
+
+if __name__=="__main__":
+	main()
+
