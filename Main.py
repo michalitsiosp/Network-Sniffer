@@ -1,4 +1,4 @@
-
+import subprocess
 import urllib.request
 import sys
 import time
@@ -71,6 +71,18 @@ def netdiscover():
     		vendor = get_vendor(received.hwsrc)
     		print(f"{received.psrc:<16}\t{received.hwsrc}\t{vendor}")
     		time.sleep(1)
+
+def nmap_scan():
+    target = input("Enter target IP or Network (e.g., 192.168.1.1): ")
+    print(f"\n[*] Starting Nmap scan (-sV -sC) on {target}...\n")
+    try:
+        # Εκτέλεση της εντολής nmap και εμφάνιση του output σε real-time
+        subprocess.run(["nmap", "-sV", "-sC", target], check=True)
+    except FileNotFoundError:
+        print("[-] Error: Nmap is not installed or not in PATH.")
+    except subprocess.CalledProcessError as e:
+        print(f"[-] Error executing Nmap: {e}")
+
 #selection menu 
 
 def main():
@@ -93,11 +105,12 @@ def main():
 				print("-" * 65)
 				print("-" * 65)
 		elif apanthsh == 3:
-			print("Nmap????")
+			nmap_scan()
 		else:
 			print("--Exit--")
 			break
 
 if __name__=="__main__":
 	main()
+
 
