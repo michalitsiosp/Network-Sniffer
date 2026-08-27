@@ -79,8 +79,8 @@ def nmap_scan():
     print("1. Quick Scan (Fast Top Ports)")
     print("2. Service & Script Scan (Standard -sV -sC)")
     print("3. Aggressive OS & Port Scan (Comprehensive -A -T4)")
-    
-    ap = input("\nEnter choice (1-3): ").strip()
+    print("4. Full stealth Scan all ports -sS -p- -Pn --max-rate 100 -T2") 
+    ap = input("\nEnter choice (1-4): ").strip()
 
     # Συγκρίνουμε με strings ("1", "2", "3") και όλα είναι μέσα στη συνάρτηση
     if ap == "1":
@@ -88,13 +88,13 @@ def nmap_scan():
         args = ["nmap", "-F", target]
     elif ap == "2":
         print(f"\n[*] Starting Service & Script Scan on {target}...\n")
-        args = ["nmap", "-sV", "-sC", target]
+        args = ["sudo","nmap", "-sV", "-sC", target]
     elif ap == "3":
         print(f"\n[*] Starting Aggressive Scan on {target}...\n")
-        args = ["nmap", "-A", "-T4", target]
+        args = ["sudo,""nmap", "-A", "-T4", target]
     else:
-        print("[-] Invalid choice. Defaulting to Service & Script Scan.\n")
-        args = ["nmap", "-sV", "-sC", target]
+        print(f"\n[*] Starting Full Stealth Scan on {target}\n")
+        args = ["sudo","nmap", "-sS", "-p-", "-Pn", "--max-rate", "100", "-T2", target]
 
     try:
         subprocess.run(args, check=True)
