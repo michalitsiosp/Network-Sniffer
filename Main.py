@@ -1,4 +1,4 @@
-import subprocess #for Nmap
+======import subprocess #for Nmap
 import urllib.request #for api
 import sys #for pre run input
 import time
@@ -16,30 +16,38 @@ print(r"                                                                        
 #traceroute.py
 
 def traceroute():
+    target = input("write target ip: ").strip()
+    if not target:
+        print("[-] Target cannot be empty.")
+        return
 
+    print(f"[*] Tracing route to {target}\n")
+    print("TTL\tRouter/IP\t\tResponse")
+    print("-" * 55)
 
+    ping = False
+    ttl = 1
+    
+    while not ping and ttl <= 30:
+        # Στέλνουμε το ICMP πακέτο με το τρέχον TTL
+        ans, unans = sr(IP(dst=target, ttl=ttl)/ICMP(), timeout=1, verbose=0)
+        
+        if ans:
+            # Απάντησε κάποιος router ή ο τελικός στόχος
+            for sent, received in ans:
+                print(f"{ttl}\t{received.src:<15}\t{received.summary()}")
+                if received.type == 0:  # ICMP Echo Reply (Φτάσαμε στον στόχο)
+                    ping = True
+                    break
+        else:
+            # Δεν υπήρξε απάντηση εντός 1 δευτερολέπτου (Timeout)
+            print(f"{ttl}\t*\t\t\tRequest timed out.")
 
+        ttl += 1
+        time.sleep(0.2)
 
-
-	target = input("write target ip: ")
-
-	print(f"[*] Tracing route to {target}\n")
-	print("TTL\tRouter/IP\t\tResponse")
-	print("-" * 55)
-
-	ping = False
-	ttl = 1
-	while ping == False and ttl != 30:
-        	ans,unans=sr(IP(dst=target, ttl=ttl)/ICMP(),timeout = 1)
-        	for sent, received in ans:
-                	print(f"{sent.ttl}\t{received.src}\t\t{received.summary()}")
-                	if received.type == 0:
-                        	ping = True
-                        	break
-        	ttl=ttl+1
-       		time.sleep(0.2)
-	if not ping:
-    		print("\n[-] Target was not reached within the TTL limit.")
+    if not ping:
+        print("\n[-] Target was not reached within the TTL limit.")
 
 #find device
 def get_vendor(mac_address):
@@ -91,7 +99,7 @@ def nmap_scan():
         args = ["sudo","nmap", "-sV", "-sC", target]
     elif ap == "3":
         print(f"\n[*] Starting Aggressive Scan on {target}...\n")
-        args = ["sudo,""nmap", "-A", "-T4", target]
+        args = ["sudo","nmap", "-A", "-T4", target]
     else:
         print(f"\n[*] Starting Full Stealth Scan on {target}\n")
         args = ["sudo","nmap", "-sS", "-p-", "-Pn", "--max-rate", "100", "-T2", target]
