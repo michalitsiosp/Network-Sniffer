@@ -1,4 +1,4 @@
-======import subprocess #for Nmap
+import subprocess #for Nmap
 import urllib.request #for api
 import sys #for pre run input
 import time
