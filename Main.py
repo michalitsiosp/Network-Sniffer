@@ -74,34 +74,36 @@ def netdiscover():
 
 def nmap_scan():
     target = input("Enter target IP or Network (e.g., 192.168.1.1): ").strip()
+    
     print("\nSelect Scan Type:")
     print("1. Quick Scan (Fast Top Ports)")
     print("2. Service & Script Scan (Standard -sV -sC)")
-    print("3. Aggressive OS & Port Scan (Comprehensive -A -p-)")
-ap = input("\nEnter choice (1-3): ").strip()
+    print("3. Aggressive OS & Port Scan (Comprehensive -A -T4)")
+    
+    ap = input("\nEnter choice (1-3): ").strip()
 
-if ap == 1:
-	print(f"\n[*] Starting Quick Scan on {target}...\n")
+    # Συγκρίνουμε με strings ("1", "2", "3") και όλα είναι μέσα στη συνάρτηση
+    if ap == "1":
+        print(f"\n[*] Starting Quick Scan on {target}...\n")
         args = ["nmap", "-F", target]
-elif ap == 2:
-     	print(f"\n[*] Starting Service & Script Scan on {target}...\n")
+    elif ap == "2":
+        print(f"\n[*] Starting Service & Script Scan on {target}...\n")
         args = ["nmap", "-sV", "-sC", target]
-elif ap == 3:
-	print(f"\n[*] Starting Aggressive Scan on {target}...\n")
+    elif ap == "3":
+        print(f"\n[*] Starting Aggressive Scan on {target}...\n")
         args = ["nmap", "-A", "-T4", target]
-else:
-	print("[-] Invalid choice. Defaulting to Service & Script Scan.\n")
+    else:
+        print("[-] Invalid choice. Defaulting to Service & Script Scan.\n")
         args = ["nmap", "-sV", "-sC", target]
 
-try:
+    try:
         subprocess.run(args, check=True)
     except FileNotFoundError:
         print("[-] Error: Nmap is not installed or not in PATH.")
     except subprocess.CalledProcessError as e:
         print(f"[-] Error executing Nmap: {e}")
     except KeyboardInterrupt:
-        print("\n[-] Scan cancelled by user.")
-#selection menu 
+        print("\n[-] Scan cancelled by user.")#selection menu 
 
 def main():
 	while True:
