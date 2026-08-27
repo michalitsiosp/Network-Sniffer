@@ -1,6 +1,6 @@
-import subprocess
-import urllib.request
-import sys
+import subprocess #for Nmap
+import urllib.request #for api
+import sys #for pre run input
 import time
 from scapy.all import srp, Ether, ARP, conf, IP, sr, ICMP , get_if_addr
 import logging
@@ -73,16 +73,34 @@ def netdiscover():
     		time.sleep(1)
 
 def nmap_scan():
-    target = input("Enter target IP or Network (e.g., 192.168.1.1): ")
-    print(f"\n[*] Starting Nmap scan (-sV -sC) on {target}...\n")
-    try:
-        # Εκτέλεση της εντολής nmap και εμφάνιση του output σε real-time
-        subprocess.run(["nmap", "-sV", "-sC", target], check=True)
+    target = input("Enter target IP or Network (e.g., 192.168.1.1): ").strip()
+    print("\nSelect Scan Type:")
+    print("1. Quick Scan (Fast Top Ports)")
+    print("2. Service & Script Scan (Standard -sV -sC)")
+    print("3. Aggressive OS & Port Scan (Comprehensive -A -p-)")
+ap = input("\nEnter choice (1-3): ").strip()
+
+if ap == 1:
+	print(f"\n[*] Starting Quick Scan on {target}...\n")
+        args = ["nmap", "-F", target]
+elif ap == 2:
+     	print(f"\n[*] Starting Service & Script Scan on {target}...\n")
+        args = ["nmap", "-sV", "-sC", target]
+elif ap == 3:
+	print(f"\n[*] Starting Aggressive Scan on {target}...\n")
+        args = ["nmap", "-A", "-T4", target]
+else:
+	print("[-] Invalid choice. Defaulting to Service & Script Scan.\n")
+        args = ["nmap", "-sV", "-sC", target]
+
+try:
+        subprocess.run(args, check=True)
     except FileNotFoundError:
         print("[-] Error: Nmap is not installed or not in PATH.")
     except subprocess.CalledProcessError as e:
         print(f"[-] Error executing Nmap: {e}")
-
+    except KeyboardInterrupt:
+        print("\n[-] Scan cancelled by user.")
 #selection menu 
 
 def main():
