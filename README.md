@@ -32,10 +32,11 @@ Designed for security audits, system administrators, and network reconnaissance.
    cd Network-Topology-Reconnaissance-Suite
    ```
 
-2. **Install Python dependencies:**
+2. **Setup:**
 
    ```bash
-   pip install scapy
+   chmod +x setup.sh
+   ./setup.sh
    ```
 
 3. **Usage**
@@ -43,7 +44,7 @@ Designed for security audits, system administrators, and network reconnaissance.
    Run the suite by supplying a target hostname or IP address for the traceroute component:
 
    ```bash
-   sudo python3 Main.py example.com
+   sudo python3 Main.py
    ```
 
 4. **Example**
