@@ -1,3 +1,5 @@
+
+import os
 import subprocess #for Nmap
 import urllib.request #for api
 import sys #for pre run input
@@ -13,6 +15,30 @@ print(r" | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ /  \___ \| '_ \| |  _|  _/ _ \ '
 print(r" | |\  |  __/ |_ \ V  V / (_) | |  |   <   ____) | | | | | | | ||  __/ |   ")
 print(r" |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |_____/|_| |_|_|_| |_| \___|_|   ")
 print(r"                                                                           ")
+
+
+
+#sudo privileges
+def sudo():
+	if os.name == 'posix':
+		#code for Linux/Mac
+		if os.geteuid() != 0:
+			print("[-] Error: Root privileges required")
+			sys.exit(1)
+	else:
+		#code for Windows
+		try:
+			import ctypes
+			if not ctypes.windll.shell32.IsUserAnAdmin():
+				print("[-] Error: Administrator  privileges required")
+				sys.exit(1)
+		except:
+			pass
+
+
+
+
+
 #traceroute.py
 
 def traceroute():
@@ -114,6 +140,7 @@ def nmap_scan():
         print("\n[-] Scan cancelled by user.")#selection menu 
 
 def main():
+	sudo()
 	while True:
 		print("**MENU**")
 		print("1. Netdiscover")
