@@ -16,21 +16,26 @@ print(r" | |\  |  __/ |_ \ V  V / (_) | |  |   <   ____) | | | | | | | ||  __/ |
 print(r" |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |_____/|_| |_|_|_| |_| \___|_|   ")
 print(r"                                                                           ")
 
-
+# Ορισμός χρωμάτων με ANSI codes
+RED = "\033[91m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+CYAN = "\033[96m"
+RESET = "\033[0m"
 
 #sudo privileges
 def sudo():
 	if os.name == 'posix':
 		#code for Linux/Mac
 		if os.geteuid() != 0:
-			print("[-] Error: Root privileges required")
+			print(f"{RED}[-] Error: Root privileges required{RESET}")
 			sys.exit(1)
 	else:
 		#code for Windows
 		try:
 			import ctypes
 			if not ctypes.windll.shell32.IsUserAnAdmin():
-				print("[-] Error: Administrator  privileges required")
+				print(f"{RED}[-] Error: Administrator  privileges required{RESET}")
 				sys.exit(1)
 		except:
 			pass
@@ -47,7 +52,7 @@ def traceroute():
         print("[-] Target cannot be empty.")
         return
 
-    print(f"[*] Tracing route to {target}\n")
+    print(f"{CYAN}[*] Tracing route to {target}\n{RESET}")
     print("TTL\tRouter/IP\t\tResponse")
     print("-" * 55)
 
@@ -67,7 +72,7 @@ def traceroute():
                     break
         else:
             # Δεν υπήρξε απάντηση εντός 1 δευτερολέπτου (Timeout)
-            print(f"{ttl}\t*\t\t\tRequest timed out.")
+            print(f"{ttl}\t*\t\t\t{RED}Request timed out.{RESET}")
 
         ttl += 1
         time.sleep(0.2)
