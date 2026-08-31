@@ -7,7 +7,7 @@ import subprocess
 import urllib.request
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
-
+from cve_lookup import format_cve_output, search_cve
 # Scapy Imports
 import scapy.config
 from scapy.all import conf, IP, ICMP, Ether, ARP, sr, srp, get_if_addr
@@ -248,9 +248,10 @@ def main():
         print(f"{CYAN}2. ᴛʀᴀᴄᴇʀᴏᴜᴛᴇ (ICMP Path Trace){RESET}")
         print(f"{CYAN}3. ɴᴍᴀᴘ Scan{RESET}")
         print(f"{CYAN}4. ᴘɪɴɢ ᴛᴀʀɢᴇᴛ{RESET}")
-        print(f"{CYAN}5. ᴇxɪᴛ{RESET}\n")
+        print(f"{CYAN}5. CVE Lookup{RESET}")
+        print(f"{CYAN}6. ᴇxɪᴛ{RESET}\n")
 
-        apanthsh = input("Select option (1-5): ").strip()
+        apanthsh = input("Select option (1-6): ").strip()
 
         if apanthsh == "1":
             netdiscover()
@@ -261,10 +262,29 @@ def main():
         elif apanthsh == "4":
             ping_target()
         elif apanthsh == "5":
+            service = input(
+                "Enter Service Name (e.g. Apache, OpenSSH): "
+            ).strip()
+            version = input("Enter Version (e.g. 2.4.49, 8.2p1): ").strip()
+
+            if service and version:
+                print(
+                    f"\n[*] Searching NVD Database for {service} {version}..."
+                )
+                cves = search_cve(service, version)
+                report = format_cve_output(service, version, cves)
+                print(report)
+                save(report)  # Αποθήκευση στο report file σου
+            else:
+                print("[-] Service and version are required.")
+
+        elif apanthsh == "6":
             print(f"{CYAN}[*] Exiting Network Toolkit... Goodbye!{RESET}")
             sys.exit(0)
         else:
-            print(f"{RED}[!] Invalid option. Please enter a number from 1 to 5.{RESET}\n")
+            print(
+                f"{RED}[!] Invalid option. Please enter a number from 1 to 6.{RESET}\n"
+            )
 
         input(f"\n{YELLOW}Press Enter to return to main menu...{RESET}")
         clear_screen()
