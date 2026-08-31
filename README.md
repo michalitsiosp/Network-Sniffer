@@ -1,4 +1,4 @@
-# Network Topology Reconnaissance Suite
+# Network Sniffer
 
 A Python-based network analysis tool leveraging **Scapy** to combine **ICMP Traceroute** with automated **ARP Subnet Discovery** and **MAC Vendor Identification** and **Ping the target**.
 
