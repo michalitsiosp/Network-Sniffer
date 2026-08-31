@@ -1,6 +1,6 @@
 # Network Topology Reconnaissance Suite
 
-A Python-based network analysis tool leveraging **Scapy** to combine **ICMP Traceroute** with automated **ARP Subnet Discovery** and **MAC Vendor Identification**.
+A Python-based network analysis tool leveraging **Scapy** to combine **ICMP Traceroute** with automated **ARP Subnet Discovery** and **MAC Vendor Identification** and **Ping the target**.
 
 Designed for security audits, system administrators, and network reconnaissance.
 
@@ -12,6 +12,7 @@ Designed for security audits, system administrators, and network reconnaissance.
 * **Auto Subnet Detection:** Automatically queries the active network interface to target the current IPv4 local subnet (e.g., `192.168.1.0/24`).
 * **Active Host Discovery (Netdiscover):** Uses Layer 2 ARP broadcast queries to reveal live devices on the local area network (LAN).
 * **MAC Vendor Identification:** Resolves physical MAC addresses to hardware manufacturers (e.g., Apple, Xiaomi, TP-Link) via REST API queries.
+* **Ping target:** Uses ICMP through scapy to send ping to the target machine
 
 ---
 
@@ -44,7 +45,7 @@ Designed for security audits, system administrators, and network reconnaissance.
    Run the suite by supplying a target hostname or IP address for the traceroute component:
 
    ```bash
-   sudo python3 Main.py
+   sudo python3 scan.py
    ```
 
 4. **Example**
