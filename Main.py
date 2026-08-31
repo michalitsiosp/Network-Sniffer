@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 import os
 import subprocess #for Nmap
@@ -8,10 +9,10 @@ from scapy.all import srp, Ether, ARP, conf, IP, sr, ICMP , get_if_addr
 import logging
 logging.getLogger("scapy").setLevel(logging.CRITICAL)
 conf.verb = 0
-print(r"  _   _       _                 _        _____        _  __  __         ")
-print(r" | \ | |     | |               | |      / ____|      (_)/ _|/ _|         ")
-print(r" |  \| | ___ | |___      _____ | |_| | __ | (___  _ __  _| |_| |_ ___ _ __ ")
-print(r" | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ /   \___ \| '_ \| |  _|  _/ _ \ '__|")
+print(r"  _   _       _                _             _____        _  __  __          ")
+print(r" | \ | |     | |              | |           / ____|      (_)/ _|/ _|         ")
+print(r" |  \| | ___ | |___      _____| |_ | |     | (___  _ __  _| |_| |_ ___ _ __  ")
+print(r" | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ /   \___ \| '_ \| |  _|  _/ _ \ '__| ")
 print(r" | |\  |  __/ |_ \ V  V / (_) | |  |   <    ____) | | | | | | | ||  __/ |    ")
 print(r" |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\  |_____/|_| |_|_|_| |_| \___|_|    ")
 print(r"                                                                             ")
@@ -26,16 +27,23 @@ RESET = "\033[0m"
 
 #save_report
 def save(data):
+    choice = input(f"{YELLOW}Do you want to store the report?{RESET}{GREEN} y/n: {RESET}").strip().lower()
+
+    if choice == "y":
         try:
-                now = datetime.now()
-                f = now.strftime("%Y-%m-%d_%H-%M-%S")
-                filename = f"report_{f}.json"
-                file = open(filename, "w")
-                file.write(data)
-                file.close()
-                print(f"{GREEN}the report {f} is saved!{RESET}")
+            now = datetime.now()
+            f = now.strftime("%Y-%m-%d_%H-%M-%S")
+            filename = f"report_{f}.json"
+
+            with open(filename, "w", encoding="utf-8") as file:
+                if isinstance(data, (dict, list)):
+                    json.dump(data, file, indent=4)
+                else:
+                    file.write(str(data))
+
+            print(f"{GREEN}the report {f} is saved!{RESET}")
         except Exception as e:
-                print(e)
+            print(f"{RED}Error saving report: {e}{RESET}")#sudo privileges
 #sudo privileges
 def sudo():
         if os.name == 'posix':
@@ -58,7 +66,6 @@ def sudo():
 
 
 #traceroute.py
-
 def traceroute():
     target = input("write target ip: ").strip()
     if not target:
@@ -66,41 +73,59 @@ def traceroute():
         return
 
     print(f"{CYAN}[*] Tracing route to {target}\n{RESET}")
-    print("TTL\tRouter/IP\t\tResponse")
-    print("-" * 55)
+
+    # 1. Εκτύπωση και αποθήκευση του header
+    header = "TTL\tRouter/IP\t\tResponse\n" + "-" * 55 + "\n"
+    print(header, end="")
+    report_data = header
 
     ping = False
     ttl = 1
-    
-    while not ping and ttl <= 30:
-        # Στέλνουμε το ICMP πακέτο με το τρέχον TTL
-        ans, unans = sr(IP(dst=target, ttl=ttl)/ICMP(), timeout=1, verbose=0)
 
-        if ans:
-            # Απάντησε κάποιος router ή ο τελικός στόχος
-            for sent, received in ans:
-                print(f"{ttl}\t{received.src:<15}\t{received.summary()}")
-                if received.type == 0:  # ICMP Echo Reply (Φτάσαμε στον στόχο)
-                    ping = True
-                    break
-        else:
-            # Δεν υπήρξε απάντηση εντός 1 δευτερολέπτου (Timeout)
-            print(f"{ttl}\t*\t\t\t{RED}Request timed out.{RESET}")
-
-        ttl += 1
-        time.sleep(0.2)
-
-    if not ping:
-        print("\n[-] Target was not reached within the TTL limit.")
-
-#find device
-def get_vendor(mac_address):
     try:
-        url = f"https://api.macvendors.com/{mac_address}"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        while not ping and ttl <= 30:
+            # Στέλνουμε το ICMP πακέτο με το τρέχον TTL
+            ans, unans = sr(
+                IP(dst=target, ttl=ttl) / ICMP(), timeout=1, verbose=0
+            )
+
+            if ans:
+                # Απάντησε κάποιος router ή ο τελικός στόχος
+                for sent, received in ans:
+                    line = f"{ttl}\t{received.src:<15}\t{received.summary()}\n"
+                    print(line, end="")
+                    report_data += line
+
+                    if received.type == 0:  # ICMP Echo Reply (στόχος)
+                        ping = True
+                        break
+            else:
+                line = f"{ttl}\t*\t\t\tRequest timed out.\n"
+                print(f"{ttl}\t*\t\t\t{RED}Request timed out.{RESET}")
+                report_data += line
+
+            ttl += 1
+            time.sleep(0.2)
+
+        if not ping:
+            msg = "\n[-] Target was not reached within the TTL limit.\n"
+            print(msg)
+            report_data += msg
+
+    except KeyboardInterrupt:
+        print(
+            f"\n{YELLOW}[!] Traceroute stopped by user. Saving gathered data...{RESET}"
+        )
+    save(report_data)
+
+#find vendor
+def get_vendor(mac):
+    try:
+        url = f"https://api.macvendors.com/{mac}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=2) as response:
-            return response.read().decode('utf-8')
-    except:
+            return response.read().decode("utf-8")
+    except Exception:
         return "Unknown Vendor"
 
 
@@ -128,61 +153,89 @@ def netdiscover():
 
 def nmap_scan():
     target = input("Enter target IP or Network (e.g., 192.168.1.1): ").strip()
+    if not target:
+        # 1. Διόρθωση στο κλείσιμο των quotes
+        print(f"{RED}[-] Target cannot be empty.{RESET}")
+        return
+
     print("\nSelect Scan Type:")
     print("1. Quick Scan (Fast Top Ports)")
     print("2. Service & Script Scan (Standard -sV -sC)")
     print("3. Aggressive OS & Port Scan (Comprehensive -A -T4)")
-    print("4. Full stealth Scan all ports -sS -p- -Pn --max-rate 100 -T2") 
+    print("4. Full stealth Scan all ports -sS -p- -Pn --max-rate 100 -T2")
     ap = input("\nEnter choice (1-4): ").strip()
 
-    # nmpap scans
+    # Δεν χρειάζεται το "sudo" στη λίστα εφόσον το Python script τρέχει ως root
     if ap == "1":
         print(f"\n[*] Starting Quick Scan on {target}...\n")
         args = ["nmap", "-F", target]
     elif ap == "2":
         print(f"\n[*] Starting Service & Script Scan on {target}...\n")
-        args = ["sudo","nmap", "-sV", "-sC", target]
+        args = ["nmap", "-sV", "-sC", target]
     elif ap == "3":
         print(f"\n[*] Starting Aggressive Scan on {target}...\n")
-        args = ["sudo","nmap", "-A", "-T4", target]
+        args = ["nmap", "-A", "-T4", target]
     else:
         print(f"\n[*] Starting Full Stealth Scan on {target}\n")
-        args = ["sudo","nmap", "-sS", "-p-", "-Pn", "--max-rate", "100", "-T2", target]
+        args = [
+            "nmap","-sS","-p-","-Pn","--max-rate","100","-T2",target,]
 
     try:
-        subprocess.run(args, check=True)
+        result = subprocess.run(
+            args, capture_output=True, text=True, check=True
+        )
+
+        # Εμφάνιση στην οθόνη και αποθήκευση
+        print(result.stdout)
+        save(result.stdout)
+
     except FileNotFoundError:
-        print("[-] Error: Nmap is not installed or not in PATH.")
+        print(f"{RED}[-] Error: Nmap is not installed or not in PATH.{RESET}")
     except subprocess.CalledProcessError as e:
-        print(f"[-] Error executing Nmap: {e}")
+        print(f"{RED}[-] Error executing Nmap: {e}{RESET}")
+        if e.stdout:
+            print(e.stdout)
+            save(e.stdout)
     except KeyboardInterrupt:
-        print("\n[-] Scan cancelled by user.")#selection menu 
+        print(f"\n{YELLOW}[-] Scan cancelled by user.{RESET}")
 
+# main menu
 def main():
-        sudo()
-        while True:
-                print("**MENU**")
-                print("1. Netdiscover")
-                print("2. Traceroute")
-                print("3. Nmap Scan")
-                print("4. Exit")
-                apanthsh = int(input("Select from (1-4): "))
-                if apanthsh == 1:
-                        netdiscover()
-                        for i in range(1,4):
-                                print("-" * 65)
-                                print("-" * 65)
+    sudo()
+    while True:
+        print("\n    𝗠 𝗘 𝗡 𝗨    ")
+        print(f"{CYAN}1. ɴᴇᴛᴅɪꜱᴄᴏᴠᴇʀ{RESET}")
+        print(f"{CYAN}2. ᴛʀᴀᴄᴇʀᴏᴜᴛᴇ{RESET}")
+        print(f"{CYAN}3. ɴᴍᴀᴘ Scan{RESET}")
+        print(f"{CYAN}4. ᴇxɪᴛ{RESET}")
 
-                elif apanthsh == 2:
-                        traceroute()
-                        for i in range(1,4):
-                                print("-" * 65)
-                                print("-" * 65)
-                elif apanthsh == 3:
-                        nmap_scan()
-                else:
-                        print("--Exit--")
-                        break
+        apanthsh = input("Select from (1-4): ").strip()
 
+        if apanthsh == "1":
+            netdiscover()
+            for i in range(1, 4):
+                print("-" * 80)
+                print("-" * 80)
+
+        elif apanthsh == "2":
+            traceroute()
+            for i in range(1, 4):
+                print("-" * 80)
+                print("-" * 80)
+
+        elif apanthsh == "3":
+            nmap_scan()
+
+        elif apanthsh == "4":
+            print("--Exit--")
+            break
+
+        else:
+            print(
+                f"{RED}[!] Invalid option. Please enter a number from 1 to 4.{RESET}\n"
+            )
 if __name__=="__main__":
-        main()
+	try:
+		 main()
+	except KeyboardInterrupt:
+		sys.exit(0)
