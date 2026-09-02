@@ -4,10 +4,10 @@ import json
 from datetime import datetime
 
 # Core Modules Imports
-from Core.cve_lookup import format_cve_output, search_cve
-from Core.discovery import netdiscover, ping_target
-from Core.traceroute import traceroute
-from Core.scanner import nmap_scan
+from core.cve_lookup import format_cve_output, search_cve
+from core.discovery import netdiscover, ping_target
+from core.traceroute import traceroute
+from core.scanner import nmap_scan
 
 # ANSI Color Codes
 RED = "\033[91m"
