@@ -12,18 +12,18 @@ def nmap_scan(save_callback):
         return
 
     print("\nSelect Scan Type:")
-    print("1. Quick Scan (Fast Top Ports)")
-    print("2. Service & Script Scan (Standard -sV -sC)")
-    print("3. Aggressive OS & Port Scan (-A -T4)")
+    print("1. Quick Scan (Fast Top Ports -Pn)")
+    print("2. Service & Script Scan (Standard -sV -sC -Pn)")
+    print("3. Aggressive OS & Port Scan (-A -T4 -Pn)")
     print("4. Full Stealth Scan all ports (-sS -p- -Pn -T2)")
     ap = input("\nEnter choice (1-4): ").strip()
 
     if ap == "1":
-        args = ["nmap", "-F", target]
+        args = ["nmap", "-F", "-Pn" target]
     elif ap == "2":
-        args = ["nmap", "-sV", "-sC", target]
+        args = ["nmap", "-sV", "-sC", "-Pn" target]
     elif ap == "3":
-        args = ["nmap", "-A", "-T4", target]
+        args = ["nmap", "-A", "-T4", "-Pn" target]
     else:
         args = ["nmap", "-sS", "-p-", "-Pn", "--max-rate", "100", "-T2", target]
 
