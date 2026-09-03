@@ -45,7 +45,7 @@ Designed for security audits, system administrators, and network reconnaissance.
    Run the suite by supplying a target hostname or IP address for the traceroute component:
 
    ```bash
-   sudo python3 scan.py
+   sudo NetworkSniffer
    ```
 
 4. **Example**
