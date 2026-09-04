@@ -13,7 +13,7 @@ Designed for security audits, system administrators, and network reconnaissance.
 * **Active Host Discovery (Netdiscover):** Uses Layer 2 ARP broadcast queries to reveal live devices on the local area network (LAN).
 * **MAC Vendor Identification:** Resolves physical MAC addresses to hardware manufacturers (e.g., Apple, Xiaomi, TP-Link) via REST API queries.
 * **Ping target:** Uses ICMP through scapy to send ping to the target machine
-
+* **Compare files:** Compares 2 files to find hidden vendors and ip's
 ---
 
 ## Requirements
