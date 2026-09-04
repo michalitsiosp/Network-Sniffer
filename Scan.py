@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 
 # Core Modules Imports
+from core.compare import interactive_compare
 from core.cve_lookup import format_cve_output, search_cve
 from core.discovery import netdiscover, ping_target
 from core.traceroute import traceroute
@@ -66,9 +67,10 @@ def main():
         print(f"{CYAN}3. ɴᴍᴀᴘ Scan{RESET}")
         print(f"{CYAN}4. ᴘɪɴɢ ᴛᴀʀɢᴇᴛ{RESET}")
         print(f"{CYAN}5. CVE Lookup{RESET}")
-        print(f"{CYAN}6. ᴇxɪᴛ{RESET}\n")
+        print(f"{CYAN}6. Compare Reports{RESET}")
+        print(f"{CYAN}7. ᴇxɪᴛ{RESET}\n")
 
-        apanthsh = input("Select option (1-6): ").strip()
+        apanthsh = input("Select option (1-7): ").strip()
 
         if apanthsh == "1":
             netdiscover(lambda data: save(data, "netdiscover"))
@@ -87,6 +89,8 @@ def main():
                 print(report)
                 save(report, "cve")
         elif apanthsh == "6":
+            interactive_compare()
+        elif apanthsh == "7":
             sys.exit(0)
 
         input(f"\n{YELLOW}Press Enter to return to main menu...{RESET}")

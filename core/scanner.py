@@ -19,11 +19,11 @@ def nmap_scan(save_callback):
     ap = input("\nEnter choice (1-4): ").strip()
 
     if ap == "1":
-        args = ["nmap", "-F", "-Pn" target]
+        args = ["nmap", "-F", "-Pn", target]
     elif ap == "2":
-        args = ["nmap", "-sV", "-sC", "-Pn" target]
+        args = ["nmap", "-sV", "-sC", "-Pn", target]
     elif ap == "3":
-        args = ["nmap", "-A", "-T4", "-Pn" target]
+        args = ["nmap", "-A", "-T4", "-Pn", target]
     else:
         args = ["nmap", "-sS", "-p-", "-Pn", "--max-rate", "100", "-T2", target]
 
