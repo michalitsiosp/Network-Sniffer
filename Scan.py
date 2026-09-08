@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from datetime import datetime
+from core.database import save_report_to_db
 
 # Core Modules Imports
 from core.compare import interactive_compare
@@ -40,22 +41,10 @@ def sudo():
 
 
 def save(data, vendor):
-    choice = input(f"\n{YELLOW}Do you want to store the report? (y/n): {RESET}").strip().lower()
+    choice = input(f"\n{YELLOW}Do you want to store the report in DB? (y/n): {RESET}").strip().lower()
     if choice == "y":
-        try:
-            now = datetime.now()
-            f_time = now.strftime("%Y-%m-%d_%H-%M-%S")
-            filename = f"report_{f_time}_{vendor}.txt"
-
-            with open(filename, "w", encoding="utf-8") as file:
-                if isinstance(data, (dict, list)):
-                    json.dump(data, file, indent=4)
-                else:
-                    file.write(str(data))
-
-            print(f"{GREEN}[+] Report saved successfully as '{filename}'!{RESET}")
-        except Exception as e:
-            print(f"{RED}[-] Error saving report: {e}{RESET}")
+        # Καλούμε τη συνάρτηση που φτιάξαμε στο database.py
+        save_report_to_db(scan_type=vendor, data=data)
 
 
 def main():

@@ -1,8 +1,6 @@
-import os
-import re
 import json
 import difflib
-from glob import glob
+from core.database import SessionLocal, ScanReport
 
 RED = "\033[91m"
 GREEN = "\033[92m"
@@ -10,45 +8,47 @@ YELLOW = "\033[93m"
 CYAN = "\033[96m"
 RESET = "\033[0m"
 
-REPORT_PATTERN = re.compile(r"^report_(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_(.+)\.txt$")
 
+def list_reports_from_db():
+    """
+    Αναζητά στη βάση δεδομένων όλα τα αποθηκευμένα reports, 
+    ομαδοποιημένα ανά scan_type (vendor).
+    Επιστρέφει dict: {scan_type: [(id, timestamp), ...]}, ταξινομημένο χρονολογικά.
+    """
+    session = SessionLocal()
+    try:
+        scans = session.query(ScanReport.id, ScanReport.scan_type, ScanReport.timestamp).order_by(ScanReport.timestamp.asc()).all()
+    finally:
+        session.close()
 
-def list_reports(directory="."):
-    """
-    Βρίσκει όλα τα report_*.txt αρχεία στον φάκελο, ομαδοποιημένα ανά vendor
-    (netdiscover, nmap, traceroute, ping, cve).
-    Επιστρέφει dict: {vendor: [(timestamp, filepath), ...]}, ταξινομημένο χρονολογικά.
-    """
     grouped = {}
-    for path in glob(os.path.join(directory, "report_*.txt")):
-        filename = os.path.basename(path)
-        match = REPORT_PATTERN.match(filename)
-        if not match:
-            continue
-        timestamp, vendor = match.groups()
-        grouped.setdefault(vendor, []).append((timestamp, path))
-
-    for vendor in grouped:
-        grouped[vendor].sort(key=lambda x: x[0])
+    for scan_id, scan_type, timestamp in scans:
+        # Μετατροπή timestamp σε string αν χρειάζεται
+        ts_str = timestamp.strftime("%Y-%m-%d_%H-%M-%S") if timestamp else "unknown_time"
+        grouped.setdefault(scan_type, []).append((scan_id, ts_str))
 
     return grouped
 
 
-def _load_content(filepath):
-    """Διαβάζει το αρχείο· προσπαθεί JSON parse, αλλιώς επιστρέφει raw text."""
-    with open(filepath, "r", encoding="utf-8") as f:
-        raw = f.read()
+def _load_content_from_db(scan_id):
+    """Φέρνει τα raw_data ενός scan από τη βάση και προσπαθεί JSON parse."""
+    session = SessionLocal()
     try:
-        return json.loads(raw), True   # (data, is_structured)
-    except (json.JSONDecodeError, ValueError):
+        scan = session.query(ScanReport).filter(ScanReport.id == scan_id).first()
+        if not scan:
+            return None, False
+        raw = scan.raw_data
+    finally:
+        session.close()
+
+    try:
+        return json.loads(raw), True  # (data, is_structured)
+    except (json.JSONDecodeError, TypeError, ValueError):
         return raw, False
 
 
 def _structured_diff(old_data, new_data):
-    """
-    Σύγκριση δύο λιστών από dicts (π.χ. netdiscover output).
-    Ταιριάζει entries βάσει του πεδίου 'ip' (ή 'IP' αν υπάρχει).
-    """
+    """Σύγκριση δύο λιστών από dicts (π.χ. netdiscover output)."""
     def key_of(entry):
         if isinstance(entry, dict):
             for k in ("ip", "IP", "address"):
@@ -87,8 +87,8 @@ def _structured_diff(old_data, new_data):
 
 def _text_diff(old_text, new_text):
     """Line-by-line diff για raw text reports (π.χ. nmap, traceroute)."""
-    old_lines = old_text.splitlines()
-    new_lines = new_text.splitlines()
+    old_lines = old_text.splitlines() if old_text else []
+    new_lines = new_text.splitlines() if new_text else []
     diff = difflib.unified_diff(
         old_lines, new_lines,
         fromfile="previous scan", tofile="latest scan",
@@ -114,21 +114,20 @@ def _text_diff(old_text, new_text):
     return "\n".join(output)
 
 
-def compare_reports(old_path, new_path):
-    """Συγκρίνει δύο report αρχεία και επιστρέφει readable diff."""
-    old_data, old_structured = _load_content(old_path)
-    new_data, new_structured = _load_content(new_path)
+def compare_reports(old_id, new_id):
+    """Συγκρίνει δύο reports από τη βάση βάσει των IDs τους."""
+    old_data, old_structured = _load_content_from_db(old_id)
+    new_data, new_structured = _load_content_from_db(new_id)
 
     header = (
-        f"{CYAN}Comparing:{RESET}\n"
-        f"  Previous: {os.path.basename(old_path)}\n"
-        f"  Latest:   {os.path.basename(new_path)}\n"
+        f"{CYAN}Comparing Database Records:{RESET}\n"
+        f"  Previous Scan ID: {old_id}\n"
+        f"  Latest Scan ID:   {new_id}\n"
     )
 
     if old_structured and new_structured and isinstance(old_data, list) and isinstance(new_data, list):
         body = _structured_diff(old_data, new_data)
     else:
-        # fallback: αν το ένα είναι structured και το άλλο όχι, σύγκρινε ως text
         old_text = old_data if not old_structured else json.dumps(old_data, indent=4)
         new_text = new_data if not new_structured else json.dumps(new_data, indent=4)
         body = _text_diff(old_text, new_text)
@@ -136,16 +135,16 @@ def compare_reports(old_path, new_path):
     return header + "\n" + body
 
 
-def interactive_compare(directory="."):
-    """Interactive menu flow: επιλογή vendor -> επιλογή δύο reports -> εμφάνιση diff."""
-    grouped = list_reports(directory)
+def interactive_compare():
+    """Interactive menu flow: επιλογή τύπου σάρωσης -> επιλογή δύο ID reports -> εμφάνιση diff."""
+    grouped = list_reports_from_db()
 
     if not grouped:
-        print(f"{RED}[-] No reports found in '{directory}'.{RESET}")
+        print(f"{RED}[-] No reports found in the database.{RESET}")
         return
 
     vendors = sorted(grouped.keys())
-    print(f"\n{CYAN}Available report types:{RESET}")
+    print(f"\n{CYAN}Available report types in Database:{RESET}")
     for i, vendor in enumerate(vendors, start=1):
         count = len(grouped[vendor])
         print(f"{CYAN}{i}. {vendor} ({count} report{'s' if count != 1 else ''}){RESET}")
@@ -163,17 +162,17 @@ def interactive_compare(directory="."):
         return
 
     print(f"\n{CYAN}Available '{vendor}' reports:{RESET}")
-    for i, (timestamp, path) in enumerate(reports, start=1):
-        print(f"{CYAN}{i}. {timestamp}{RESET}")
+    for i, (scan_id, timestamp) in enumerate(reports, start=1):
+        print(f"{CYAN}{i}. ID: {scan_id} | Time: {timestamp}{RESET}")
 
     try:
-        idx1 = int(input(f"{YELLOW}Select FIRST (older) report: {RESET}").strip()) - 1
-        idx2 = int(input(f"{YELLOW}Select SECOND (newer) report: {RESET}").strip()) - 1
-        old_path = reports[idx1][1]
-        new_path = reports[idx2][1]
+        idx1 = int(input(f"{YELLOW}Select FIRST (older) report number: {RESET}").strip()) - 1
+        idx2 = int(input(f"{YELLOW}Select SECOND (newer) report number: {RESET}").strip()) - 1
+        old_id = reports[idx1][0]
+        new_id = reports[idx2][0]
     except (ValueError, IndexError):
         print(f"{RED}[-] Invalid selection.{RESET}")
         return
 
     print()
-    print(compare_reports(old_path, new_path))
+    print(compare_reports(old_id, new_id))
