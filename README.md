@@ -25,7 +25,7 @@ Designed for security audits, system administrators, and network reconnaissance.
 
 ### Python Dependencies
 
-Οι απαραίτητες βιβλιοθήκες καταγράφονται στο αρχείο `requirements.txt`:
+`requirements.txt`:
 
 ```
 SQLAlchemy>=2.0.0
@@ -55,12 +55,6 @@ scapy>=2.5.0
    ```bash
    pip install -r requirements.txt
    ```
-
-   > Εναλλακτικά, αν έχεις ήδη εγκατεστημένα τα σωστά πακέτα στο virtual environment σου, μπορείς να τα περάσεις αυτόματα στο αρχείο `requirements.txt` τρέχοντας:
-   >
-   > ```bash
-   > pip freeze > requirements.txt
-   > ```
 
 4. **Setup (optional automated script):**
 
