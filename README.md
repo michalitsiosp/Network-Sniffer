@@ -14,13 +14,23 @@ Designed for security audits, system administrators, and network reconnaissance.
 * **MAC Vendor Identification:** Resolves physical MAC addresses to hardware manufacturers (e.g., Apple, Xiaomi, TP-Link) via REST API queries.
 * **Ping target:** Uses ICMP through scapy to send ping to the target machine
 * **Compare files:** Compares 2 files to find hidden vendors and ip's
+
 ---
 
 ## Requirements
 
 * **OS:** Linux / Unix-based system
-* **Python:** 3.8+
-* **Permissions:** Root / `sudo` privileges (required for Scapy raw socket creation)
+* **Python:** 3.8+ (3.10+ recommended)
+* **Permissions:** Root / `sudo` privileges (required for Scapy raw socket creation, netdiscover, and nmap operations)
+
+### Python Dependencies
+
+Οι απαραίτητες βιβλιοθήκες καταγράφονται στο αρχείο `requirements.txt`:
+
+```
+SQLAlchemy>=2.0.0
+scapy>=2.5.0
+```
 
 ---
 
@@ -33,14 +43,33 @@ Designed for security audits, system administrators, and network reconnaissance.
    cd Network-Topology-Reconnaissance-Suite
    ```
 
-2. **Setup:**
+2. **Create and activate a virtual environment:**
+
+   ```bash
+   python3 -m venv pentest-venv
+   source pentest-venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   > Εναλλακτικά, αν έχεις ήδη εγκατεστημένα τα σωστά πακέτα στο virtual environment σου, μπορείς να τα περάσεις αυτόματα στο αρχείο `requirements.txt` τρέχοντας:
+   >
+   > ```bash
+   > pip freeze > requirements.txt
+   > ```
+
+4. **Setup (optional automated script):**
 
    ```bash
    chmod +x setup.sh
    ./setup.sh
    ```
 
-3. **Usage**
+5. **Usage**
 
    Run the suite by supplying a target hostname or IP address for the traceroute component:
 
@@ -48,7 +77,7 @@ Designed for security audits, system administrators, and network reconnaissance.
    sudo NetworkSniffer
    ```
 
-4. **Example**
+6. **Example**
 
    ```
     _   _                    _       _____       _  __  __
