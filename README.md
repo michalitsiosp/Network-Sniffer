@@ -4,9 +4,9 @@
 
 Built for security audits, system administrators, and network reconnaissance.
 
-![Python](https://img.shields.io/badge/python-3.8%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Platform](https://img.shields.io/badge/platform-Linux%2FUnix-lightgrey)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-Linux%2FUnix-lightgrey)](https://en.wikipedia.org/wiki/Unix-like)
 
 ---
 
