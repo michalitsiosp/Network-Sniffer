@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import json
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
@@ -48,9 +41,9 @@ def save_report_to_db(scan_type, data, target="Local"):
         )
         session.add(new_scan)
         session.commit()
-        print(f"\033[92m[+] Το report αποθηκεύτηκε στη βάση δεδομένων!\033[0m")
+        print(f"\033[92m[+] Report saved!\033[0m")
     except Exception as e:
         session.rollback()
-        print(f"\033[91m[-] Σφάλμα βάσης: {e}\033[0m")
+        print(f"\033[91m[-] Database error: {e}\033[0m")
     finally:
         session.close()
