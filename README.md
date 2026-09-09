@@ -121,14 +121,18 @@ IP Address               MAC Address             Device
 
 ## Project Structure
 
-```
+```text
 Network-Topology-Reconnaissance-Suite/
-├── setup.sh                 # Automated installation script
-├── requirements.txt          # Python dependencies
-├── src/                       # Tool source code
-├── docs/                      # Documentation (optional)
-└── README.md
-```
+├── Scan.py                   # Main entry point of the application
+├── setup.sh                  # Automated installation script
+├── requirements.txt          # Python dependencies (scapy, sqlalchemy, etc.)
+├── network_sniffer.db        # SQLite database (auto-generated)
+├── LICENSE                   # License file
+├── README.md                 # Project documentation
+└── core/                     # Application core modules
+    ├── compare.py            # File and data comparison module
+    ├── database.py           # SQLite database management & SQLAlchemy models
+    └── sniff.py              # Packet sniffer & anomaly detector (Scapy)
 
 ---
 
