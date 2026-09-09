@@ -1,8 +1,8 @@
-# 🛰️ Network Sniffer
+# Network Sniffer
 
-**Network Topology Reconnaissance Suite** — Ένα εργαλείο δικτυακής ανάλυσης βασισμένο σε Python και Scapy, που συνδυάζει ICMP Traceroute, αυτόματη ανακάλυψη υποδικτύου μέσω ARP, αναγνώριση κατασκευαστή MAC, και ping στόχου.
+**Network Topology Reconnaissance Suite** — a Python-based network analysis tool built on Scapy, combining ICMP traceroute with automated ARP subnet discovery, MAC vendor identification, and target pinging.
 
-Σχεδιασμένο για security audits, system administrators, και network reconnaissance.
+Built for security audits, system administrators, and network reconnaissance.
 
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -10,38 +10,38 @@
 
 ---
 
-## 📑 Περιεχόμενα
+## Contents
 
-- [Βασικά Χαρακτηριστικά](#-βασικά-χαρακτηριστικά)
-- [Προαπαιτούμενα](#-προαπαιτούμενα)
-- [Εγκατάσταση](#️-εγκατάσταση--ρύθμιση)
-- [Χρήση](#-χρήση)
-- [Παράδειγμα Εξόδου](#-παράδειγμα-εξόδου)
-- [Δομή Έργου](#-δομή-έργου)
-- [Αποεγκατάσταση](#-αποεγκατάσταση)
-- [Νομική Σημείωση](#️-νομική-σημείωση)
-- [Άδεια Χρήσης](#-άδεια-χρήσης)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation--setup)
+- [Usage](#usage)
+- [Example Output](#example-output)
+- [Project Structure](#project-structure)
+- [Uninstalling](#uninstalling)
+- [Legal Notice](#legal-notice)
+- [License](#license)
 
 ---
 
-## 🚀 Βασικά Χαρακτηριστικά
+## Features
 
-| Λειτουργία | Περιγραφή |
+| Feature | Description |
 |---|---|
-| **Path Discovery (Traceroute)** | Χαρτογραφεί τα router hops προς έναν απομακρυσμένο host/domain χρησιμοποιώντας raw ICMP πακέτα. |
-| **Auto Subnet Detection** | Ανιχνεύει αυτόματα το ενεργό δικτυακό interface για να στοχεύσει το τρέχον τοπικό IPv4 υποδίκτυο (π.χ. `192.168.1.0/24`). |
-| **Active Host Discovery (Netdiscover)** | Χρησιμοποιεί ερωτήματα ARP broadcast σε επίπεδο 2 (Layer 2) για να αποκαλύψει ενεργές συσκευές στο τοπικό δίκτυο (LAN). |
-| **MAC Vendor Identification** | Αντιστοιχίζει φυσικές διευθύνσεις MAC σε κατασκευαστές υλικού (π.χ. Apple, Xiaomi, TP-Link) μέσω REST API ερωτημάτων. |
-| **Ping Target** | Στέλνει ICMP pings σε συγκεκριμένο στόχο μέσω Scapy. |
-| **Compare Files** | Συγκρίνει 2 αρχεία εξόδου για να εντοπίσει κρυφούς/νέους vendors και IPs. |
+| **Path Discovery (Traceroute)** | Maps router hops to a remote host/domain using raw ICMP packets. |
+| **Auto Subnet Detection** | Automatically queries the active network interface to target the current local IPv4 subnet (e.g. `192.168.1.0/24`). |
+| **Active Host Discovery (Netdiscover)** | Uses Layer 2 ARP broadcast queries to reveal live devices on the local network (LAN). |
+| **MAC Vendor Identification** | Resolves physical MAC addresses to hardware manufacturers (e.g. Apple, Xiaomi, TP-Link) via REST API queries. |
+| **Ping Target** | Sends ICMP pings to a specified target through Scapy. |
+| **Compare Files** | Compares two output files to spot hidden or new vendors and IPs. |
 
 ---
 
-## 📋 Προαπαιτούμενα
+## Requirements
 
-- **Λειτουργικό Σύστημα:** Linux / Unix-based system
-- **Python:** 3.8+ (συνιστάται 3.10+)
-- **Δικαιώματα:** Root / sudo (απαραίτητα για δημιουργία raw sockets από το Scapy, netdiscover, και λειτουργίες nmap)
+- **OS:** Linux / Unix-based system
+- **Python:** 3.8+ (3.10+ recommended)
+- **Permissions:** Root / sudo (required for Scapy raw socket creation, netdiscover, and nmap operations)
 
 ### Python Dependencies (`requirements.txt`)
 
@@ -52,47 +52,47 @@ scapy>=2.5.0
 
 ---
 
-## ⚙️ Εγκατάσταση & Ρύθμιση
+## Installation & Setup
 
-Ο πιο εύκολος και καθαρός τρόπος εγκατάστασης του εργαλείου είναι μέσω του αυτοματοποιημένου script:
+The easiest way to install the tool is with the included setup script:
 
 ```bash
-# Κλωνοποίηση του repository
+# Clone the repository
 git clone https://github.com/michalitsiosp/Network-Topology-Reconnaissance-Suite.git
 cd Network-Topology-Reconnaissance-Suite
 
-# Δώστε δικαίωμα εκτέλεσης στο setup script και τρέξτε το με sudo
+# Make the setup script executable and run it with sudo
 chmod +x setup.sh
 sudo ./setup.sh
 ```
 
-Το `setup.sh`:
-1. Εγκαθιστά αυτόματα όλα τα απαραίτητα πακέτα συστήματος.
-2. Δημιουργεί απομονωμένο Python Virtual Environment στο `/opt/networksniffer/venv`.
-3. Εγκαθιστά τις απαραίτητες βιβλιοθήκες (`SQLAlchemy`, `scapy`).
-4. Κάνει το εργαλείο διαθέσιμο παντού στο σύστημα ως εντολή `NetworkSniffer`.
+`setup.sh` will:
+1. Install the required system packages.
+2. Create an isolated Python virtual environment at `/opt/networksniffer/venv`.
+3. Install the necessary libraries (`SQLAlchemy`, `scapy`).
+4. Make the tool available system-wide as the `NetworkSniffer` command.
 
 ---
 
-## ▶️ Χρήση
+## Usage
 
-Μετά την εγκατάσταση, μπορείτε να τρέξετε τη σουίτα από οπουδήποτε στο σύστημά σας με:
+Once installed, run the suite from anywhere on your system with:
 
 ```bash
 sudo NetworkSniffer
 ```
 
-> **Σημείωση:** Απαιτούνται δικαιώματα root/sudo, καθώς το εργαλείο δημιουργεί raw sockets για την αποστολή και λήψη ICMP/ARP πακέτων.
+Root/sudo is required because the tool opens raw sockets to send and receive ICMP/ARP packets.
 
-Μέσα από το interactive menu μπορείτε να επιλέξετε:
-- Traceroute προς host/domain
-- Ανακάλυψη ενεργών συσκευών στο τοπικό υποδίκτυο (auto-detected ή custom)
-- Ping σε συγκεκριμένο στόχο
-- Σύγκριση δύο αρχείων εξόδου για εντοπισμό αλλαγών (νέοι vendors/IPs)
+From the interactive menu you can:
+- Run a traceroute to a host or domain
+- Discover active devices on the local subnet (auto-detected or custom)
+- Ping a specific target
+- Compare two output files to spot changes (new vendors/IPs)
 
 ---
 
-## 🖥️ Παράδειγμα Εξόδου
+## Example Output
 
 ```
  _   _                    _       _____       _  __  __
@@ -113,33 +113,33 @@ TTL    Router/IP        Response
 IP Address               MAC Address             Device
 -----------------------------------------------------------------
 192.168.1.1              ##:##:##:##:##:##       TP-Link Corporation Limited
-192.168.1.15              ##:##:##:##:##:##       Intel Corporate
+192.168.1.15             ##:##:##:##:##:##       Intel Corporate
 ```
 
 ---
 
-## 📁 Δομή Έργου
+## Project Structure
 
 ```
 Network-Topology-Reconnaissance-Suite/
-├── setup.sh                 # Script αυτόματης εγκατάστασης
+├── setup.sh                 # Automated installation script
 ├── requirements.txt          # Python dependencies
-├── src/                       # Πηγαίος κώδικας εργαλείου
-├── docs/                      # Τεκμηρίωση (προαιρετικό)
+├── src/                       # Tool source code
+├── docs/                      # Documentation (optional)
 └── README.md
 ```
 
 ---
 
-## 🧹 Αποεγκατάσταση
+## Uninstalling
 
-Αν το `setup.sh` παρέχει αντίστοιχο uninstall script, μπορείτε να τρέξετε:
+If `setup.sh` ships with a corresponding uninstall script, run:
 
 ```bash
 sudo ./uninstall.sh
 ```
 
-Διαφορετικά, μπορείτε να αφαιρέσετε χειροκίνητα το virtual environment και το symlink της εντολής:
+Otherwise, remove the virtual environment and the command symlink manually:
 
 ```bash
 sudo rm -rf /opt/networksniffer
@@ -148,22 +148,22 @@ sudo rm -f /usr/local/bin/NetworkSniffer
 
 ---
 
-## ⚠️ Νομική Σημείωση
+## Legal Notice
 
-Αυτό το εργαλείο προορίζεται **αποκλειστικά για εκπαιδευτικούς σκοπούς, security audits, και διαχείριση δικτύων που σας ανήκουν ή για τα οποία έχετε ρητή εξουσιοδότηση**. Η χρήση εργαλείων σάρωσης/reconnaissance σε δίκτυα τρίτων χωρίς άδεια μπορεί να παραβιάζει τοπική νομοθεσία. Ο χρήστης φέρει την αποκλειστική ευθύνη για τη νόμιμη χρήση του εργαλείου.
-
----
-
-## 📄 Άδεια Χρήσης
-
-Διανέμεται υπό την άδεια **MIT**. Δείτε το αρχείο `LICENSE` για περισσότερες λεπτομέρειες.
+This tool is intended for educational purposes, security audits, and administration of networks you own or are explicitly authorized to test. Running scanning/reconnaissance tools against third-party networks without permission may violate local law. Users are solely responsible for lawful use of this tool.
 
 ---
 
-## 🤝 Συνεισφορά
+## License
 
-Pull requests και προτάσεις είναι ευπρόσδεκτες! Για σημαντικές αλλαγές, ανοίξτε πρώτα ένα issue για να συζητήσουμε τι θα θέλατε να αλλάξετε.
+Distributed under the MIT License. See the `LICENSE` file for details.
 
-## 📬 Επικοινωνία
+---
 
-Για ερωτήσεις ή αναφορά προβλημάτων, ανοίξτε ένα [issue](https://github.com/michalitsiosp/Network-Topology-Reconnaissance-Suite/issues) στο repository.
+## Contributing
+
+Pull requests and suggestions are welcome. For larger changes, open an issue first to discuss what you'd like to change.
+
+## Contact
+
+For questions or bug reports, open an [issue](https://github.com/michalitsiosp/Network-Topology-Reconnaissance-Suite/issues) on the repository.
