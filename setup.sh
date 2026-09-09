@@ -12,8 +12,8 @@ BIN_PATH="/usr/local/bin/NetworkSniffer"
 echo "[*] Updating package list..."
 apt update
 
-echo "[*] Installing system dependencies (Nmap, Python venv, pcap, ping)..."
-apt install -y nmap python3-pip python3-venv iputils-ping libpcap-dev
+echo "[*] Installing system dependencies (Nmap, Python venv, pcap, ping, sqlitebrowser)..."
+apt install -y nmap python3-pip python3-venv iputils-ping libpcap-dev sqlitebrowser
 
 echo "[*] Creating installation directory at $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
