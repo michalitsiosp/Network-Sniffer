@@ -34,6 +34,7 @@ Built for security audits, system administrators, and network reconnaissance.
 | **MAC Vendor Identification** | Resolves physical MAC addresses to hardware manufacturers (e.g. Apple, Xiaomi, TP-Link) via REST API queries. |
 | **Ping Target** | Sends ICMP pings to a specified target through Scapy. |
 | **Compare Files** | Compares two output files to spot hidden or new vendors and IPs. |
+| **Traffic Analyzer**| Shows real time input of network trafic into the interface you choose
 
 ---
 
