@@ -5,7 +5,7 @@ import sys
 
 from core.compare import interactive_compare
 from core.cve_lookup import format_cve_output, search_cve
-from core.database import save_report_to_db
+from core.database import open_in_sqlitebrowser, save_report_to_db
 from core.discovery import netdiscover, ping_target
 from core.scanner import nmap_scan
 
@@ -83,9 +83,10 @@ def main():
         print(
             f"{CYAN}7. Network Sniffer & IDS (Live Traffic / Anomalies){RESET}"
         )
-        print(f"{CYAN}8. ᴇxɪᴛ{RESET}\n")
+        print(f"{CYAN}8. Open Database (sqlitebrowser){RESET}")
+        print(f"{CYAN}9. ᴇxɪᴛ{RESET}\n")
 
-        apanthsh = input("Select option (1-8): ").strip()
+        apanthsh = input("Select option (1-9): ").strip()
 
         if apanthsh == "1":
             netdiscover(lambda data: save(data, "netdiscover"))
@@ -109,6 +110,8 @@ def main():
             # Κλήση του sniffer από το core/sniff.py
             start_sniffer_menu()
         elif apanthsh == "8":
+            open_in_sqlitebrowser()
+        elif apanthsh == "9":
             sys.exit(0)
 
         input(f"\n{YELLOW}Press Enter to return to main menu...{RESET}")
