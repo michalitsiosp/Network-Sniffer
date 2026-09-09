@@ -1,6 +1,6 @@
 import json
 import difflib
-from core.database import SessionLocal, ScanReport
+from core.database import SessionLocal, ScanReport, init_db
 
 RED = "\033[91m"
 GREEN = "\033[92m"
@@ -15,6 +15,7 @@ def list_reports_from_db():
     ομαδοποιημένα ανά scan_type (vendor).
     Επιστρέφει dict: {scan_type: [(id, timestamp), ...]}, ταξινομημένο χρονολογικά.
     """
+    init_db()  # Εξασφαλίζει ότι ο πίνακας "scans" υπάρχει, ακόμα κι αν δεν έχει γίνει ποτέ save
     session = SessionLocal()
     try:
         scans = session.query(ScanReport.id, ScanReport.scan_type, ScanReport.timestamp).order_by(ScanReport.timestamp.asc()).all()
